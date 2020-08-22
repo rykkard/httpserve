@@ -1,5 +1,6 @@
 # HTTPServant
 [![License](https://img.shields.io/badge/license-MIT-_red.svg)](https://opensource.org/licenses/MIT)
+[![Go Report Card](https://goreportcard.com/badge/github.com/rykkard/httpservant)](https://goreportcard.com/report/github.com/rykkard/httpservant)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/rykkard/httpservant/issues)
 
 Small tool made in Go to serve files over HTTP which provides more verbose log output.
