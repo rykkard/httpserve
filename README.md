@@ -1,4 +1,5 @@
 # HTTPServant
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/rykkard/httpservant)
 [![License](https://img.shields.io/badge/license-MIT-_red.svg)](https://opensource.org/licenses/MIT)
 [![Go Report Card](https://goreportcard.com/badge/github.com/rykkard/httpservant)](https://goreportcard.com/report/github.com/rykkard/httpservant)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/rykkard/httpservant/issues)

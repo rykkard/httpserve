@@ -22,6 +22,27 @@ import (
 	"github.com/justinas/alice"
 )
 
+const (
+	version        string = "v1.4.15"
+	message200     string = "It works !"
+	message404     string = "404 page not found"
+	messageBinData string = "" +
+		"+-----------------------------------------+\n" +
+		"| NOTE: binary data not shown in terminal |\n" +
+		"+-----------------------------------------+"
+)
+
+var (
+	port          uint   = 8000
+	bindInterface string = "0.0.0.0"
+	corsEnable    bool   = false
+	listEnable    bool   = false
+	silentMode    bool   = false
+	authString    string = ""
+	limit         uint64 = ^uint64(0)
+	content       string = "."
+)
+
 func init() {
 	flag.Usage = func() {
 		h := []string{
@@ -66,27 +87,6 @@ func init() {
 
 	flag.Parse()
 }
-
-const (
-	version        string = "v1.4.15"
-	message200     string = "It works !"
-	message404     string = "404 page not found"
-	messageBinData string = "" +
-		"+-----------------------------------------+\n" +
-		"| NOTE: binary data not shown in terminal |\n" +
-		"+-----------------------------------------+"
-)
-
-var (
-	port          uint   = 8000
-	bindInterface string = "0.0.0.0"
-	corsEnable    bool   = false
-	listEnable    bool   = false
-	silentMode    bool   = false
-	authString    string = ""
-	limit         uint64 = ^uint64(0)
-	content       string = "."
-)
 
 func main() {
 	if flag.Arg(0) != "" {
