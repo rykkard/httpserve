@@ -14,6 +14,7 @@ type arguments struct {
 	corsEnable    bool
 	listEnable    bool
 	silentMode    bool
+	verboseEnable bool
 	authString    string
 	limit         uint64
 	resource      string
@@ -35,6 +36,7 @@ func (args *arguments) parse() {
 			"   --cors                      enable cors",
 			"   --list                      enable listing on root paths (/)",
 			"   --auth <user:pass>          enable basic authentication",
+			"   -v, --verbose               enable more verbose (headers)",
 			"   -s, --silent                enable silent mode",
 			"   -h, --help                  show help",
 			"",
@@ -56,6 +58,9 @@ func (args *arguments) parse() {
 	flag.BoolVar(&args.silentMode, "s", args.silentMode, "")
 
 	flag.StringVar(&args.authString, "auth", args.authString, "")
+
+	flag.BoolVar(&args.verboseEnable, "verbose", args.verboseEnable, "")
+	flag.BoolVar(&args.verboseEnable, "v", args.verboseEnable, "")
 
 	//TODO server shutdown based on request limit?
 	//flag.Uint64Var(&args.limit, "limit", args.limit, "")

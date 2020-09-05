@@ -120,6 +120,17 @@ func requestHandler(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 
+		if args.verboseEnable {
+			log.Printf("Host: %v\n", r.Host)
+			headers := r.Header
+			for header, values := range headers {
+				for _, value := range values {
+					log.Printf("%v: %v\n", header, value)
+				}
+			}
+			log.Println()
+		}
+
 		if len(body) > 0 {
 			data := string(body)
 			if isASCIIPrintable(data) {

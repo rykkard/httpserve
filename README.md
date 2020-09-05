@@ -33,6 +33,7 @@ Options:
    --cors                      enable cors
    --list                      enable listing on root paths (/)
    --auth <user:pass>          enable basic authentication
+   -v, --verbose               enable more verbose (headers)
    -s, --silent                enable silent mode
    -h, --help                  show help
 ```

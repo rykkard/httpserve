@@ -1,6 +1,6 @@
 package main
 
-const version = "v1.4.16"
+const version = "v1.5.0"
 
 const (
 	message200     = "It works !"
