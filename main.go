@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -22,76 +21,9 @@ import (
 	"github.com/justinas/alice"
 )
 
-const (
-	version        string = "v1.4.15"
-	message200     string = "It works !"
-	message404     string = "404 page not found"
-	messageBinData string = "" +
-		"+-----------------------------------------+\n" +
-		"| NOTE: binary data not shown in terminal |\n" +
-		"+-----------------------------------------+"
-)
-
-var (
-	port          uint   = 8000
-	bindInterface string = "0.0.0.0"
-	corsEnable    bool   = false
-	listEnable    bool   = false
-	silentMode    bool   = false
-	authString    string = ""
-	limit         uint64 = ^uint64(0)
-	content       string = "."
-)
-
-func init() {
-	flag.Usage = func() {
-		h := []string{
-			fmt.Sprintf("HTTPServant %v", version),
-			"Small tool to serve just one directory or file over HTTP.",
-			"It serves the current directory by default.",
-			"",
-			"Usage:",
-			fmt.Sprintf("   %v [OPTIONS] <filename|directory>", filepath.Base(os.Args[0])),
-			"",
-			"Options:",
-			"   -p, --port <port>           port to serve on (default: 8000)",
-			"   -b, --bind <interface>      interface to bind (default: 0.0.0.0)",
-			"   --cors                      enable cors",
-			"   --list                      enable listing on root paths (/)",
-			"   --auth <user:pass>          enable basic authentication",
-			"   -s, --silent                enable silent mode",
-			"   -h, --help                  show help",
-			"",
-		}
-		fmt.Fprintf(os.Stderr, strings.Join(h, "\n"))
-		os.Exit(1)
-	}
-
-	flag.UintVar(&port, "port", port, "")
-	flag.UintVar(&port, "p", port, "")
-
-	flag.StringVar(&bindInterface, "bind", bindInterface, "")
-	flag.StringVar(&bindInterface, "b", bindInterface, "")
-
-	flag.BoolVar(&corsEnable, "cors", corsEnable, "")
-	flag.BoolVar(&listEnable, "list", listEnable, "")
-
-	flag.BoolVar(&silentMode, "silent", silentMode, "")
-	flag.BoolVar(&silentMode, "s", silentMode, "")
-
-	flag.StringVar(&authString, "auth", authString, "")
-
-	//TODO server shutdown based on request limit?
-	//flag.Uint64Var(&limit, "limit", limit, "")
-	//flag.Uint64Var(&limit, "l", limit, "")
-
-	flag.Parse()
-}
-
 func main() {
-	if flag.Arg(0) != "" {
-		content = filepath.Clean(flag.Arg(0))
-	}
+
+	content := args.resource
 
 	fi, err := os.Stat(content)
 	if err != nil {
@@ -102,7 +34,7 @@ func main() {
 
 	// enable silent mode
 	log.SetFlags(0)
-	if silentMode {
+	if args.silentMode {
 		log.SetOutput(ioutil.Discard)
 	} else {
 		loggingHandler := createLoggingHandler(os.Stdout)
@@ -110,8 +42,8 @@ func main() {
 	}
 
 	// enable basic authentication
-	if len(authString) != 0 {
-		creds := strings.SplitN(authString, ":", 2)
+	if len(args.authString) != 0 {
+		creds := strings.SplitN(args.authString, ":", 2)
 		user := creds[0]
 		pass := ""
 		if len(creds) == 2 {
@@ -156,13 +88,13 @@ func main() {
 		mux.Handle("/", handlerChain.ThenFunc(welcome))
 	}
 
-	log.Printf("[*] Serving HTTP on %v port %v\n", bindInterface, port)
+	log.Printf("[*] Serving HTTP on %v port %v\n", args.bindInterface, args.port)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	sig := make(chan os.Signal)
 	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
 
-	server := http.Server{Addr: fmt.Sprint(bindInterface, ":", port), Handler: mux}
+	server := http.Server{Addr: fmt.Sprint(args.bindInterface, ":", args.port), Handler: mux}
 	go func() {
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatal(err)
@@ -201,10 +133,10 @@ func requestHandler(next http.Handler) http.Handler {
 
 func responseHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if corsEnable {
+		if args.corsEnable {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
 		}
-		if !listEnable && strings.HasSuffix(r.URL.Path, "/") {
+		if !args.listEnable && strings.HasSuffix(r.URL.Path, "/") {
 			w.WriteHeader(http.StatusOK)
 			fmt.Fprint(w, message200)
 			return
@@ -224,7 +156,7 @@ func welcome(w http.ResponseWriter, r *http.Request) {
 }
 
 func serveFile(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, content)
+	http.ServeFile(w, r, args.resource)
 }
 
 func isASCIIPrintable(s string) bool {
