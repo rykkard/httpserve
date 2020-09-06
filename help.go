@@ -17,7 +17,7 @@ type arguments struct {
 	verboseEnable bool
 	authString    string
 	limit         uint64
-	resource      string
+	resources     []string
 }
 
 func (args *arguments) parse() {
@@ -75,9 +75,6 @@ func init() {
 	args.port = 8000
 	args.bindInterface = "0.0.0.0"
 	args.limit = ^uint64(0)
-	args.resource = "."
 	args.parse()
-	if flag.Arg(0) != "" {
-		args.resource = filepath.Clean(flag.Arg(0))
-	}
+	args.resources = flag.Args()
 }

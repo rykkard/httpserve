@@ -22,14 +22,6 @@ import (
 )
 
 func main() {
-
-	content := args.resource
-
-	fi, err := os.Stat(content)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
 	handlerChain := alice.New(requestHandler)
 
 	// enable silent mode
@@ -56,36 +48,74 @@ func main() {
 	handlerChain = handlerChain.Append(responseHandler)
 
 	mux := http.NewServeMux()
-	switch mode := fi.Mode(); {
-	case mode.IsDir():
-		log.Println("[*] Stagging directory:", content)
-		treeView := gotree.New(content)
-		_ = filepath.Walk(content,
-			func(path string, info os.FileInfo, err error) error {
-				if err != nil {
-					return err
-				}
-				if info.Mode().IsRegular() {
-					data := fmt.Sprintf("%v", path)
-					treeView.Add(data)
-				}
-				return nil
-			})
-		log.Println(treeView.Print())
-		fileServer := http.FileServer(http.Dir(content))
-		mux.Handle("/", handlerChain.Then(fileServer))
-	case mode.IsRegular():
-		log.Println("[*] Stagging file:", content)
-		treeView := gotree.New(path.Dir(content))
-		data := fmt.Sprintf("%v", content)
-		treeView.Add(data)
-		log.Println(treeView.Print())
-		pattern := fmt.Sprint("/", filepath.Base(content))
+	if len(args.resources) == 0 {
+		mux.Handle("/", handlerChain.ThenFunc(welcome))
+	} else {
+		log.Println("[*] Stagging resources")
+		graphs := make(map[string]gotree.Tree)
 
-		mux.Handle("/", handlerChain.ThenFunc(welcome))
-		mux.Handle(pattern, handlerChain.ThenFunc(serveFile))
-	default:
-		mux.Handle("/", handlerChain.ThenFunc(welcome))
+		for _, resource := range args.resources {
+			fi, err := os.Stat(resource)
+			if err != nil {
+				continue
+			}
+
+			switch mode := fi.Mode(); {
+			case mode.IsDir():
+				func() {
+					defer func() {
+						if err := recover(); err != nil {
+							//log.Println("panic occurred:", err)
+						}
+					}()
+					fileServer := http.FileServer(http.Dir(resource))
+					mux.Handle("/", handlerChain.Then(fileServer))
+
+					//build dir graph
+					dirname := filepath.Clean(resource)
+					graph, exists := graphs[dirname]
+					if !exists {
+						graph = gotree.New(dirname)
+						graphs[dirname] = graph
+					}
+					_ = filepath.Walk(resource,
+						func(path string, info os.FileInfo, err error) error {
+							if err != nil {
+								return err
+							}
+							if info.Mode().IsRegular() {
+								data := fmt.Sprintf("%v", path)
+								graph.Add(data)
+							}
+							return nil
+						})
+				}()
+			case mode.IsRegular():
+				func() {
+					defer func() {
+						if err := recover(); err != nil {
+							//log.Println("panic occurred:", err)
+						}
+					}()
+					pattern := fmt.Sprint("/", filepath.Base(resource))
+					mux.Handle(pattern, handlerChain.ThenFunc(createServeFileHandler(resource)))
+
+					//build file graph
+					dirname := path.Dir(resource)
+					data := fmt.Sprintf("%v", resource)
+					graph, exists := graphs[dirname]
+					if !exists {
+						graph = gotree.New(dirname)
+						graphs[dirname] = graph
+					}
+					graph.Add(data)
+				}()
+			default:
+			}
+		}
+		for _, graph := range graphs {
+			log.Print(graph.Print())
+		}
 	}
 
 	log.Printf("[*] Serving HTTP on %v port %v\n", args.bindInterface, args.port)
@@ -162,12 +192,15 @@ func createLoggingHandler(dst io.Writer) func(http.Handler) http.Handler {
 	}
 }
 
-func welcome(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, message200)
+func createServeFileHandler(filename string) func(w http.ResponseWriter, r *http.Request) {
+	fileHandler := func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, filename)
+	}
+	return fileHandler
 }
 
-func serveFile(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, args.resource)
+func welcome(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, message200)
 }
 
 func isASCIIPrintable(s string) bool {
