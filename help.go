@@ -24,11 +24,10 @@ func (args *arguments) parse() {
 	flag.Usage = func() {
 		h := []string{
 			fmt.Sprintf("HTTPServant %v", version),
-			"Small tool to serve just one directory or file over HTTP.",
-			"It serves the current directory by default.",
+			"Small tool to serve files/directories over HTTP with more verbosity.",
 			"",
 			"Usage:",
-			fmt.Sprintf("   %v [OPTIONS] <filename|directory>", filepath.Base(os.Args[0])),
+			fmt.Sprintf("   %v [OPTIONS] <filenames|directories>", filepath.Base(os.Args[0])),
 			"",
 			"Options:",
 			"   -p, --port <port>           port to serve on (default: 8000)",
