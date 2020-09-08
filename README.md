@@ -3,18 +3,16 @@
 [![License](https://img.shields.io/badge/license-MIT-_red.svg)](https://opensource.org/licenses/MIT)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/rykkard/httpservant/issues)
 
-Small tool made in Go to serve files over HTTP which provides more verbose log output.
+Small tool to serve files over HTTP which provides more verbose log output.
 
 ## Install
 
 - Installation
-
 ```bash
 $ go get -v 'github.com/rykkard/httpservant'
 ```
 
 - Update
-
 ```bash
 $ go get -v -u 'github.com/rykkard/httpservant'
 ```
@@ -39,8 +37,9 @@ Options:
    -h, --help                  show help
 ```
 
-## Example
+## Examples
 
+- Just listen mode
 ```
 $ httpservant
 [*] Serving HTTP on 0.0.0.0 port 8000
@@ -54,7 +53,27 @@ Hello world!
 +-----------------------------------------+
 127.0.0.1 - - [13/Aug/2020:17:49:36 -0500] "POST / HTTP/1.1" 200 10
 GG
+<..>
+```
+- Serving files
+```
+$ httpservant LICENSE.md README.md
+[*] Stagging resources
+.
+└── LICENSE.md
+└── README.md
+[*] Serving HTTP on 0.0.0.0 port 8000
+<..>
+```
 
-^C
-[*] Shutdown HTTP service
+- Serving directory files with any other file
+```
+$ httpservant /dev/shm/ README.md
+[*] Stagging resources
+/dev/shm
+└── /dev/shm/somefile
+.
+└── README.md
+[*] Serving HTTP on 0.0.0.0 port 8000
+<..>
 ```
