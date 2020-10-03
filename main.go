@@ -18,6 +18,7 @@ import (
 	"github.com/disiqueira/gotree"
 	"github.com/goji/httpauth"
 	"github.com/gorilla/handlers"
+	"github.com/h2non/filetype"
 	"github.com/justinas/alice"
 )
 
@@ -162,10 +163,11 @@ func requestHandler(next http.Handler) http.Handler {
 		}
 
 		if len(body) > 0 {
-			data := string(body)
-			if isASCIIPrintable(data) {
-				log.Println(data)
+			kind, _ := filetype.Match(body)
+			if kind == filetype.Unknown {
+				log.Println(string(body))
 			} else {
+				// kind.Extension, kind.MIME.Value
 				log.Println(messageBinData)
 			}
 		}
