@@ -19,6 +19,7 @@ import (
 	"github.com/goji/httpauth"
 	"github.com/gorilla/handlers"
 	"github.com/h2non/filetype"
+	"github.com/jedib0t/go-pretty/table"
 	"github.com/justinas/alice"
 )
 
@@ -153,8 +154,7 @@ func requestHandler(next http.Handler) http.Handler {
 
 		if args.verboseEnable {
 			log.Printf("Host: %v\n", r.Host)
-			headers := r.Header
-			for header, values := range headers {
+			for header, values := range r.Header {
 				for _, value := range values {
 					log.Printf("%v: %v\n", header, value)
 				}
@@ -164,11 +164,12 @@ func requestHandler(next http.Handler) http.Handler {
 
 		if len(body) > 0 {
 			kind, _ := filetype.Match(body)
-			if kind == filetype.Unknown {
-				log.Println(string(body))
-			} else {
+			if kind != filetype.Unknown {
 				// kind.Extension, kind.MIME.Value
-				log.Println(messageBinData)
+				message := simpleRowRender(strings.Replace(messageBinData, "%MIME%", kind.MIME.Value, -1))
+				log.Println(message)
+			} else {
+				log.Println(string(body))
 			}
 		}
 	})
@@ -212,4 +213,14 @@ func isASCIIPrintable(s string) bool {
 		}
 	}
 	return true
+}
+
+func simpleRowRender(info string) string {
+	t := table.NewWriter()
+	t.SetStyle(table.StyleLight)
+	t.AppendRows([]table.Row{
+		{info},
+	})
+	text := t.Render()
+	return text
 }
