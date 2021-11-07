@@ -1,4 +1,4 @@
-module github.com/rykkard/httpservant
+module github.com/rykkard/httpserve
 
 go 1.15
 

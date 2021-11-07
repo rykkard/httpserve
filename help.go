@@ -23,7 +23,7 @@ type arguments struct {
 func (args *arguments) parse() {
 	flag.Usage = func() {
 		h := []string{
-			fmt.Sprintf("HTTPServant %v", version),
+			fmt.Sprintf("HTTPserve %v", version),
 			"Small tool to serve files/directories over HTTP with more verbosity.",
 			"",
 			"Usage:",

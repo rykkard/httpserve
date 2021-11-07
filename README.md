@@ -1,30 +1,24 @@
-# HTTPservant
-![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/rykkard/httpservant)
+# HTTPserve
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/rykkard/httpserve)
 [![License](https://img.shields.io/badge/license-MIT-_red.svg)](https://opensource.org/licenses/MIT)
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/rykkard/httpservant/issues)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/rykkard/httpserve/issues)
 
 Small tool to serve files over HTTP which provides more verbose log output.
 
-## Install
+## Installation
 
-- Installation
 ```bash
-$ go get -v 'github.com/rykkard/httpservant'
-```
-
-- Update
-```bash
-$ go get -v -u 'github.com/rykkard/httpservant'
+$ go install -v 'github.com/rykkard/httpserve@latest'
 ```
 
 ## Usage
 
 ```
-$ httpservant -h
+$ httpserve -h
 Small tool to serve files/directories over HTTP with more verbosity.
 
 Usage:
-   httpservant [OPTIONS] <filenames|directories>
+   httpserve [OPTIONS] <filenames|directories>
 
 Options:
    -p, --port <port>           port to serve on (default: 8000)
@@ -41,7 +35,7 @@ Options:
 
 - Just listen mode
 ```
-$ httpservant
+$ httpserve
 [*] Serving HTTP on 0.0.0.0 port 8000
 127.0.0.1 - - [13/Aug/2020:17:45:34 -0500] "GET / HTTP/1.1" 200 10
 127.0.0.1 - - [13/Aug/2020:17:46:24 -0500] "POST / HTTP/1.1" 200 10
@@ -57,7 +51,7 @@ GG
 ```
 - Serving files
 ```
-$ httpservant LICENSE.md README.md
+$ httpserve LICENSE.md README.md
 [*] Stagging resources
 .
 └── LICENSE.md
@@ -68,7 +62,7 @@ $ httpservant LICENSE.md README.md
 
 - Serving directory files with any other file
 ```
-$ httpservant /dev/shm/ README.md
+$ httpserve /dev/shm/ README.md
 [*] Stagging resources
 /dev/shm
 └── /dev/shm/somefile
